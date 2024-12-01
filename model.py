@@ -82,3 +82,35 @@ def create_gemma_peft_model(args):
     # model, tokenizer = setup_chat_format(model, tokenizer)
     model = get_peft_model(model, peft_config)
     return model, tokenizer, peft_config
+
+def init_model(args):
+
+    attn_implementation = args["attn_implementation"]
+    base_model_url = args["model_url"]
+    torch_dtype = args["torch_dtype"]
+    device = args["device_map"]
+
+
+    # bitsandbytes config
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch_dtype,
+        bnb_4bit_use_double_quant=True,
+    )
+
+    # Load model
+    print(f"[/] model init, using {attn_implementation}...")
+    model = AutoModelForCausalLM.from_pretrained(
+        base_model_url,
+        quantization_config=bnb_config,
+        device_map=device,
+        torch_dtype=torch_dtype,
+        attn_implementation=attn_implementation
+    )
+
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(base_model_url, trust_remote_code=True)
+    print("[/] model loaded!")
+
+    return model, tokenizer

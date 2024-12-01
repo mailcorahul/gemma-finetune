@@ -1,4 +1,6 @@
 import torch
+import os
+import json
 
 from transformers import (
     AutoModelForCausalLM,
@@ -9,13 +11,19 @@ from transformers import (
 import numpy as np
 import evaluate
 
+from model import init_model
+from dataset import create_dataset
+
 from datasets import load_dataset
 from evaluate import evaluator
 
 from secret_tokens import hf_token
-
 from tqdm import tqdm
 
+from huggingface_hub import login
+login(token = hf_token)
+
+from config import EVAL_CONFIGS
 
 def generate_batch_sized_chunks(list_of_elements, batch_size):
     """
@@ -50,7 +58,9 @@ def calculate_metric_on_test_ds(dataset, metric, model, tokenizer,
                                 clean_up_tokenization_spaces=True)
             for s in summaries]
 
+        print("GT")
         print(target_batch)
+        print("\nPRED")
         print(decoded_summaries[0])
         # decoded_summaries = [d.replace("", " ") for d in decoded_summaries]
         # print(decoded_summaries[0])
@@ -60,110 +70,43 @@ def calculate_metric_on_test_ds(dataset, metric, model, tokenizer,
     score = metric.compute(use_aggregator=True)
     return score
 
-
-from huggingface_hub import login
-#from kaggle_secrets import UserSecretsClient
-#user_secrets = UserSecretsClient()
-
-login(token = hf_token)
-
-base_model_url = "Gemma-2-27b-it-cnn_dailymail-merged"
-# base_model_url = "google/gemma-2-27b-it"
-
-device = "auto"
-
-if torch.cuda.get_device_capability()[0] >= 8:
-    torch_dtype = torch.bfloat16
-    attn_implementation = "flash_attention_2"
-else:
-    torch_dtype = torch.float16
-    attn_implementation = "eager"
-
-attn_implementation = "eager"
-
-# QLoRA config
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch_dtype,
-    bnb_4bit_use_double_quant=True,
-)
-
-rouge = evaluate.load("rouge")
-# task_evaluator = evaluator("text-classification")
-
-# Load model
-print(f"[/] model init, using {attn_implementation}")
-model = AutoModelForCausalLM.from_pretrained(
-    base_model_url,
-    quantization_config=bnb_config,
-    device_map=device,
-    torch_dtype=torch.bfloat16,
-    attn_implementation=attn_implementation
-)
-
-# pipe = pipeline(
-#     "text-generation",
-#     model=base_model_url,
-#     quantization_config=bnb_config,
-#     model_kwargs={"torch_dtype": torch.bfloat16},
-#     device_map="auto",
-# )
-
-# Load tokenizer
-tokenizer = AutoTokenizer.from_pretrained(base_model_url, trust_remote_code=True)
-
-print("[/] model loaded")
-
-# training_args = TrainingArguments(
-#     "test_trainer",
-#     remove_unused_columns=False
-#     )
-
-print("loading dataset")
-#Importing the dataset
-dataset_name = "abisee/cnn_dailymail"
-dataset = load_dataset(dataset_name, "1.0.0", split="all")
-dataset = dataset.shuffle(seed=65).select(range(100)) # Only use 1000 samples for quick demo
-
 def format_chat_template(row):
     # row_json = [{"role": "system", "content": row["instruction"]},
     row_json = [
-               {"role": "user", "content": row["article"]},
-               {"role": "assistant", "content": row["highlights"]}]
+            {"role": "user", "content": row["article"]},
+            {"role": "assistant", "content": row["highlights"]}]
     row["text"] = tokenizer.apply_chat_template(row_json, tokenize=False)
     return row
 
-dataset = dataset.map(
-    format_chat_template,
-    num_proc= 4,
-)
+
+if __name__ == "__main__":
+
+    base_model_url = EVAL_CONFIGS["model_url"]
+    device = EVAL_CONFIGS["device"]
+
+    # load Gemma finetuned model
+    model, tokenizer = init_model(EVAL_CONFIGS)
+
+    # load dataset for evaluation
+    dataset = create_dataset(EVAL_CONFIGS, tokenizer, split_dataset=False)
+
+    rouge = evaluate.load(EVAL_CONFIGS["eval_metric"])
+    score = calculate_metric_on_test_ds(
+        dataset,
+        rouge,
+        model,
+        tokenizer,
+        batch_size=EVAL_CONFIGS["eval_batch_size"],
+        device=device
+    )
+
+    rouge_names = ["rouge1", "rouge2", "rougeL", "rougeLsum"]
+    print(score)
+    rouge_dict = dict((rn, score[rn]) for rn in rouge_names )
+    print("[/] rouge metric", rouge_dict)
 
 
-# trainer = Trainer(
-#     model=model,
-#     args=training_args,
-#     train_dataset=dataset,
-#     eval_dataset=dataset,
-#     tokenizer=tokenizer,
-#     compute_metrics=compute_metrics,
-# )
-
-
-# print("[/] evaluating...")
-# trainer.evaluate()
-
-
-score = calculate_metric_on_test_ds(
-    dataset[0:10],
-    rouge,
-    model,
-    tokenizer,
-    batch_size=1,
-    # device="cpu"
-)
-
-rouge_names = ["rouge1", "rouge2", "rougeL", "rougeLsum"]
-print(score)
-rouge_dict = dict((rn, score[rn]) for rn in rouge_names )
-print("[/] rouge metric", rouge_dict)
+    # dump metrics json
+    eval_metric_path = os.path.join(base_model_url, "eval_metrics.json")
+    with open(eval_metric_path, "w") as f:
+        json.dump(rouge_dict, f, indent=2)

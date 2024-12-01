@@ -28,3 +28,16 @@ MERGE_ADAPTER_CONFIGS = {
     "torch_dtype" : torch.bfloat16,
     "attn_implementation" : "eager"
 }
+
+EVAL_CONFIGS = {
+    "model_url": "gemma-2-9b-it-cnn_dailymail-finetuned",
+    "dataset_name": "abisee/cnn_dailymail",
+    "attn_implementation" : "eager",
+    "torch_dtype" : torch.bfloat16,
+    "num_dataset_samples": 10,
+    "dataset_shuffle_seed": 65,
+    "eval_batch_size": 1,
+    "device_map": "auto",
+    "device": "cuda",
+    "eval_metric": "rouge"
+}
