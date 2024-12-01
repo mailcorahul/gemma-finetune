@@ -4,7 +4,8 @@ from transformers import (
     logging,
 )
 
-import os, torch, wandb
+import os, torch
+import wandb
 import numpy as np
 
 from model import create_gemma_peft_model
@@ -18,17 +19,17 @@ from huggingface_hub import login
 # from kaggle_secrets import UserSecretsClient
 # user_secrets = UserSecretsClient()
 
-from secret_tokens import hf_token, wandb_token
+from secret_tokens import hf_token, wb_token
 login(token = hf_token)
 
 # wb_token = user_secrets.get_secret("wandb")
 
-# wandb.login(key=wb_token)
-# run = wandb.init(
-#     project='Fine-tune Gemma-2-9b-it on HealthCare Dataset',
-#     job_type="training",
-#     anonymous="allow"
-# )
+wandb.login(key=wb_token)
+run = wandb.init(
+    project=TRAINING_CONFIGS["wandb_project_name"],
+    job_type="training",
+    anonymous="allow"
+)
 
 rouge = evaluate.load(TRAINING_CONFIGS["eval_metric"])
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
         bf16=False,
         group_by_length=True,
         eval_accumulation_steps=1,
-        # report_to="wandb"
+        report_to="wandb"
     )
     # Setting sft parameters
     trainer = SFTTrainer(
@@ -105,7 +106,7 @@ if __name__ == "__main__":
     model.config.use_cache = False
     trainer.train()
 
-    # wandb.finish()
+    wandb.finish()
     model.config.use_cache = True
 
     trainer.model.save_pretrained(adapter_model_url)

@@ -4,6 +4,7 @@ TRAINING_CONFIGS = {
     "base_model_url": "google/gemma-2-9b-it",
     "adapter_model_url": "gemma-2-9b-it-cnn_dailymail-v2",
     "dataset_name": "abisee/cnn_dailymail",
+    "wandb_project_name": "finetune gemma-2-9b-it",
     "attn_implementation" : "eager",
     "torch_dtype" : torch.bfloat16,
     "num_dataset_samples": 1000,
