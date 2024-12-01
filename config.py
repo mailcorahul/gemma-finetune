@@ -41,3 +41,10 @@ EVAL_CONFIGS = {
     "device": "cuda",
     "eval_metric": "rouge"
 }
+
+MODEL_UPLOAD_CONFIG = {
+    "model_url": "gemma-2-9b-it-cnn_dailymail-finetuned",
+    "device": "cpu",
+    "torch_dtype" : torch.bfloat16,
+    "device_map": "auto"
+}
