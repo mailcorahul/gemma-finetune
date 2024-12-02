@@ -17,6 +17,8 @@ frozenlist==1.5.0
 fsspec==2024.9.0
 gitdb==4.0.11
 GitPython==3.1.43
+gradio==5.7.1
+gradio_client==1.5.0
 huggingface-hub==0.26.3
 idna==3.10
 Jinja2==3.1.4
@@ -42,6 +44,7 @@ nvidia-cusparse-cu12==12.3.1.170
 nvidia-nccl-cu12==2.21.5
 nvidia-nvjitlink-cu12==12.4.127
 nvidia-nvtx-cu12==12.4.127
+ollama==0.4.2
 packaging==24.2
 pandas==2.2.3
 peft==0.13.2
