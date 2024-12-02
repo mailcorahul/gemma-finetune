@@ -10,6 +10,7 @@ def create_dataset(args, tokenizer, split_dataset=True):
 
     dataset = load_dataset(dataset_name, "1.0.0", split="all")
     dataset = dataset.shuffle(seed=dataset_shuffle_seed).select(range(num_samples))
+    print(len(dataset))
 
     def format_chat_template(row):
         # row_json = [{"role": "system", "content": row["instruction"]},

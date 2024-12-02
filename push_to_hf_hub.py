@@ -4,8 +4,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from huggingface_hub import login
 #from kaggle_secrets import UserSecretsClient
 #user_secrets = UserSecretsClient()
-from secret_tokens import hf_token
-login(token = hf_token)
+from secret_tokens import hf_write_token
+login(token = hf_write_token)
 
 from config import MODEL_UPLOAD_CONFIG
 

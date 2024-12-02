@@ -2,15 +2,18 @@ import gradio as gr
 import ollama
 import time
 
-model_name = "gemma2:latest"
+from config import OLLAMA_MODEL_CONFIG
+
+model_name = OLLAMA_MODEL_CONFIG["model_name"]
 print(f"[/] USING OLLAMA {model_name} FOR INFERENCE")
 
 def summarize_with_gemma(input_text):
 
-    print("[/] request received. generating summary...")
+    print("\n[/] request received. generating summary...")
 
     summary = "[default summary] empty"
     try:
+        start_time = time.time()
         response = ollama.chat(
             model=model_name,
             messages=[{
@@ -20,7 +23,8 @@ def summarize_with_gemma(input_text):
         )
 
         summary = response['message']['content'].strip()
-        print("[/] processed.")
+        processing_time = time.time() - start_time
+        print(f"[/] processed in {processing_time} secs")
 
     except Exception as e:
         print(e)

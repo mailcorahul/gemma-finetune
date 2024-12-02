@@ -107,6 +107,7 @@ if __name__ == "__main__":
 
 
     # dump metrics json
+    os.makedirs(base_model_url, exist_ok=True)
     eval_metric_path = os.path.join(base_model_url, "eval_metrics.json")
     with open(eval_metric_path, "w") as f:
         json.dump(rouge_dict, f, indent=2)

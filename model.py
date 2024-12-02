@@ -58,7 +58,7 @@ def create_gemma_peft_model(args):
         base_model,
         quantization_config=bnb_config,
         device_map=device_map,
-        # torch_dtype=torch.bfloat16,
+        torch_dtype=torch_dtype,
         attn_implementation=attn_implementation
     )
     print("[/] model loaded!")

@@ -60,6 +60,10 @@ if __name__ == "__main__":
     # create Gemma PEFT model for finetuning
     model, tokenizer, peft_config = create_gemma_peft_model(TRAINING_CONFIGS)
 
+    if TRAINING_CONFIGS["resume"]:
+        print("[/] loading adapter weights to resume finetuning...")
+        model.load_adapter(TRAINING_CONFIGS["pretrained_adapter_url"], adapter_name="lora_adapter")
+
     # create dataset for finetuning
     dataset = create_dataset(TRAINING_CONFIGS, tokenizer)
 
@@ -78,6 +82,7 @@ if __name__ == "__main__":
         eval_strategy="steps",
         eval_steps=TRAINING_CONFIGS["eval_steps"],
         logging_steps=1,
+        save_steps=0.05,
         warmup_steps=10,
         logging_strategy="steps",
         learning_rate=2e-4,
