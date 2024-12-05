@@ -1,14 +1,14 @@
 import torch
 
 TRAINING_CONFIGS = {
-    "base_model_url": "google/gemma-2-9b-it",
-    "adapter_model_url": "gemma-2-9b-it-cnn_dailymail-adapter-v3",
+    "base_model_url": "google/gemma-2-27b-it",
+    "adapter_model_url": "/dev2/hf/gemma-2-27b-it-cnn_dailymail-adapter-final",
     "dataset_name": "abisee/cnn_dailymail",
-    "wandb_project_name": "finetune gemma-2-9b-it",
+    "wandb_project_name": "gemma-2-27b-it on cnn_dailymail-adapter-final",
     "attn_implementation" : "eager",
     "torch_dtype" : torch.bfloat16,
-    "num_dataset_samples": 100000,
-    "num_epochs": 1,
+    "num_dataset_samples": 1000,
+    "num_epochs": 3,
     "eval_steps": 1000000,
     "dataset_shuffle_seed": 65,
     "test_size": 0.1,
@@ -22,20 +22,21 @@ TRAINING_CONFIGS = {
 
 
 MERGE_ADAPTER_CONFIGS = {
-    "base_model_url": "google/gemma-2-9b-it",
-    "adapter_model_url": "gemma-2-9b-it-cnn_dailymail-adapter",
-    "new_model_url": "gemma-2-9b-it-cnn_dailymail-finetuned",
+    "base_model_url": "google/gemma-2-27b-it",
+    "adapter_model_url": "/dev2/hf/gemma-2-27b-it-cnn_dailymail-adapter-final/checkpoint-676",
+    "new_model_url": "/dev2/hf/gemma-2-27b-it-cnn_dailymail-finetuned-final",
     "device_map": "cpu",
     "torch_dtype" : torch.bfloat16,
     "attn_implementation" : "eager"
 }
 
 EVAL_CONFIGS = {
-    "model_url": "google/gemma-2-9b-it",
+    "model_url": "google/gemma-2-27b-it",
     "dataset_name": "abisee/cnn_dailymail",
+    "use_bnb_quant": True,
     "attn_implementation" : "eager",
     "torch_dtype" : torch.bfloat16,
-    "num_dataset_samples": 10,
+    "num_dataset_samples": 100,
     "dataset_shuffle_seed": 65,
     "eval_batch_size": 1,
     "device_map": "auto",
@@ -44,7 +45,8 @@ EVAL_CONFIGS = {
 }
 
 MODEL_UPLOAD_CONFIG = {
-    "model_url": "gemma-2-9b-it-cnn_dailymail-finetuned",
+    "model_url": "gemma-2-27b-it-cnn_dailymail-finetuned-final",
+    # "model_url": "gemma-2-9b-it-cnn_dailymail-finetuned-final",
     "torch_dtype" : torch.bfloat16,
     "device_map": "auto"
 }

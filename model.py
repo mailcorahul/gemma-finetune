@@ -54,17 +54,31 @@ def create_gemma_peft_model(args):
 
     # Load model
     print("[/] model init...")
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model,
-        quantization_config=bnb_config,
-        device_map=device_map,
-        torch_dtype=torch_dtype,
-        attn_implementation=attn_implementation
-    )
-    print("[/] model loaded!")
+    if "27b" in base_model:
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            quantization_config=bnb_config,
+            device_map=device_map,
+            torch_dtype=torch_dtype,
+            attn_implementation=attn_implementation
+        )
+
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            quantization_config=bnb_config,
+            device_map=device_map,
+            # torch_dtype=torch_dtype,
+            attn_implementation=attn_implementation
+        )
+    print(f"[/] {base_model} loaded!")
 
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
+
+    # if "27b" in base_model:
+    #     tokenizer.pad_token = "[PAD]"
+    #     tokenizer.padding_side = "left"
 
     print("[/] finding all linear modules...")
     modules = find_all_linear_names(model)
@@ -83,7 +97,7 @@ def create_gemma_peft_model(args):
     model = get_peft_model(model, peft_config)
     return model, tokenizer, peft_config
 
-def init_model(args):
+def init_model(args, use_bnb_quant=False):
 
     attn_implementation = args["attn_implementation"]
     base_model_url = args["model_url"]
@@ -92,25 +106,37 @@ def init_model(args):
 
 
     # bitsandbytes config
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch_dtype,
-        bnb_4bit_use_double_quant=True,
-    )
+    bnb_config = None
+    if use_bnb_quant:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch_dtype,
+            bnb_4bit_use_double_quant=True,
+        )
 
     # Load model
     print(f"[/] model init, using {attn_implementation}...")
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model_url,
-        quantization_config=bnb_config,
-        device_map=device,
-        torch_dtype=torch_dtype,
-        attn_implementation=attn_implementation
-    )
+    if "27b" in base_model_url:
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model_url,
+            quantization_config=bnb_config,
+            device_map=device,
+            torch_dtype=torch_dtype,
+            attn_implementation=attn_implementation
+        )
+
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model_url,
+            quantization_config=bnb_config,
+            device_map=device,
+            torch_dtype=torch_dtype,
+            attn_implementation=attn_implementation
+        )
 
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(base_model_url, trust_remote_code=True)
-    print("[/] model loaded!")
+    print(f"[/] {base_model_url} loaded!")
 
     return model, tokenizer

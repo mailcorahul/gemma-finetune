@@ -66,7 +66,6 @@ if __name__ == "__main__":
 
     # create dataset for finetuning
     dataset = create_dataset(TRAINING_CONFIGS, tokenizer)
-
     # get training params
     adapter_model_url = TRAINING_CONFIGS["adapter_model_url"]
 
@@ -82,7 +81,7 @@ if __name__ == "__main__":
         eval_strategy="steps",
         eval_steps=TRAINING_CONFIGS["eval_steps"],
         logging_steps=1,
-        save_steps=0.05,
+        save_steps=0.25,
         warmup_steps=10,
         logging_strategy="steps",
         learning_rate=2e-4,
