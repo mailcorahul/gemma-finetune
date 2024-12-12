@@ -1,16 +1,16 @@
 # gemma-finetune
 A framework to finetune, evaluate and deploy Gemma-2 9B and 27B models.
 
-# Table of Contents:
+## Table of Contents:
 
-1. [Introduction](#Introduction)
-2. Installation
-3. Supervised Finetuning
-4. Gemma-2 Evaluation on Text Summarization
-5. Quantization, Deployment and Gradio Demo
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Supervised Finetuning](#supervised-finetuning)
+- [Gemma-2 Evaluation on Text Summarization](#gemma-2-evaluation-on-text-summarization)
+- [Quantization, Deployment and Gradio Demo](#quantization-deployment-and-gradio-demo)
 
 
-# 1. Introduction
+## Introduction
 
 **gemma-finetune** framework supports:
 1. Supervised Finetuning of **Gemma-2 9B and 27B LLMs** on text data(supports text summarization data).
@@ -18,7 +18,7 @@ A framework to finetune, evaluate and deploy Gemma-2 9B and 27B models.
 3. **GGUF Quantization + ollama** inference for efficient deployment of LLMs.
 4. Demo with **Gradio**(with ollama backend)
 
-## Features:
+### Features:
 1. **Modular** and **config driven** training and evaluation repository.
 2. Integration with **Weights & Biases** to log training metadata and evaluation metrics.
 3. Supports **LoRA** and **Q-LoRA** techniques for finetuning of 9B and 27B models.
@@ -26,7 +26,7 @@ A framework to finetune, evaluate and deploy Gemma-2 9B and 27B models.
 5. Supports **distributed model training** and evaluation using HF accelerate.
 
 
-# 2. Installation
+## Installation
 
 1. Create virtualenv python enviroment
 
@@ -36,7 +36,7 @@ pip install -r requirements.txt
 ```
 
 
-# 3. Supervised Finetuning
+## Supervised Finetuning
 
 1. In **config.py**, under **TRAINING_CONFIGS**, configure the base Gemma model to be finetuned, path to the new adapter model to be trained, wandb project to use and get going.
 
@@ -59,7 +59,7 @@ python merge_and_unload.py
 ```
 
 
-# 4. Gemma-2 Evaluation on Text Summarization
+## Gemma-2 Evaluation on Text Summarization
 
 
 1. Update **EVAL_CONFIGS** in config.py and run,
@@ -68,7 +68,7 @@ python evaluate_llm.py
 ```
 
 
-# 5. Quantization, Deployment and Gradio Demo
+## Quantization, Deployment and Gradio Demo
 
 1. To quantize(GGUF quants) the finetuned Gemma model(or any model on HuggingFace), you can make use of the following repository:
 https://huggingface.co/spaces/ggml-org/gguf-my-repo
