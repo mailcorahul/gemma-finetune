@@ -10,8 +10,8 @@ def create_dataset(args, tokenizer, split_dataset=True):
 
     dataset = load_dataset(dataset_name, "1.0.0", split="all")
     # dataset = dataset.shuffle(seed=dataset_shuffle_seed).select(range(num_samples))
-    dataset = dataset.select(list(range(900, 925)))
-    # dataset = dataset.select(range(num_samples))
+    # dataset = dataset.select(list(range(900, 925)))
+    dataset = dataset.select(range(num_samples))
     print("[/] num_data_samples", len(dataset))
 
     def format_chat_template(row):
